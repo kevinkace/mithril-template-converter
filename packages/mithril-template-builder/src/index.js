@@ -1,3 +1,9 @@
+import jsdom from "jsdom";
+import DOMParser from "xmldom";
+
+const { JSDOM } = jsdom;
+const { document } = (new JSDOM()).window;
+
 
 const ENTITY_REGEX = /(&#?\w+;)/;
 
