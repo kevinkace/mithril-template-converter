@@ -8,7 +8,6 @@ var DOMParser = _interopDefault(require('xmldom'));
 const { JSDOM } = jsdom;
 const { document } = (new JSDOM()).window;
 
-
 const ENTITY_REGEX = /(&#?\w+;)/;
 
 const svgCaseSensitiveTagNames = ["altGlyph", "altGlyphDef", "altGlyphItem", "animateColor", "animateMotion", "animateTransform", "clipPath", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "foreignObject", "glyphRef", "linearGradient", "radialGradient", "textPath"];
@@ -94,40 +93,90 @@ TemplateBuilder.prototype = {
   },
 
   addVirtualAttrs: function(el) {
-    let virtual = el.tag === "div" ? "" : el.tag;
+    let virtual = el.tag || "div";
 
-    if (el.attrs.class) {
-      let attrs = el.attrs.class.replace(/\s+/g, ".");
-      virtual += `.${attrs}`;
-      el.attrs.class = undefined;
-    }
+    // if (el.attrs.class) {
+    //   let attrs = el.attrs.class.replace(/\s+/g, ".");
+    //   virtual += `.${attrs}`;
+    //   el.attrs.class = undefined;
+    // }
 
     each(Object.keys(el.attrs).sort(), function(attrName) {
-      if (attrName === "style") return;
-      if (el.attrs[attrName] === undefined) return;
       let attrs = el.attrs[attrName];
-      attrs = attrs.replace(/[\n\r\t]/g, " ");
-      attrs = attrs.replace(/\s+/g, " "); // clean up redundant spaces we just created
-      attrs = attrs.replace(/'/g, "\\'"); // escape quotes
-      virtual += `[${attrName}='${attrs}']`;
+
+      if (!attrs) return;
+
+      switch(attrs) {
+      case "class":
+        attrs = attrs.replace(/\s+/g, ".");
+        virtual += `.${attrs}`;
+        el.attrs[attrName] = undefined;
+
+        break;
+
+      case "style":
+        attrs = attrs
+          .replace(/(^.*);\s*$/, "$1") // trim trailing semi-colon
+          .replace(/[\n\r]/g, "") // remove newlines
+          .split(/\s*;\s*/) // ["color:#f00", "border: 1px solid red"]
+          .map((propValue) => {
+            // "color:#f00"
+            return propValue.split(/\s*:\s*/).map((part) => {
+              return `"${part}"`;
+            }).join(": "); // "\"color\": \"#f00\""
+          })
+          .join(", ");
+
+        virtual += `, {style: {${attrs}}}`;
+
+        break;
+
+      case "points":
+      case "cx":
+      case "cy":
+      case "r":
+        console.log("things");
+
+        break;
+
+      default:
+        attrs = attrs
+          .replace(/[\n\r\t]/g, " ")
+          .replace(/\s+/g, " ") // clean up redundant spaces we just created
+          .replace(/'/g, "\\'"); // escape quotes
+
+        virtual += `[${attrName}='${attrs}']`;
+
+        break;
+      }
+      // if (allowedAttrs.indexOf(attrName) >= 0) return;
+
+      // attrs = attrs.replace(/[\n\r\t]/g, " ");
+      // attrs = attrs.replace(/\s+/g, " "); // clean up redundant spaces we just created
+      // attrs = attrs.replace(/'/g, "\\'"); // escape quotes
+      // virtual += `[${attrName}='${attrs}']`;
     });
 
     if (virtual === "") virtual = "div";
     virtual = `"${virtual}"`; // add quotes
 
-    if (el.attrs.style) {
-      let attrs = el.attrs.style.replace(/(^.*);\s*$/, "$1"); // trim trailing semi-colon
-      attrs = attrs.replace(/[\n\r]/g, ""); // remove newlines
-      attrs = attrs.split(/\s*;\s*/); // ["color:#f00", "border: 1px solid red"]
-      attrs = attrs.map((propValue) => {
-        // "color:#f00"
-        return propValue.split(/\s*:\s*/).map((part) => {
-          return `"${part}"`;
-        }).join(": "); // "\"color\": \"#f00\""
-      });
-      attrs = attrs.join(", ");
-      virtual += `, {style: {${attrs}}}`;
-    }
+    // if (el.attrs.style) {
+    //   let attrs = el.attrs.style.replace(/(^.*);\s*$/, "$1"); // trim trailing semi-colon
+    //   attrs = attrs.replace(/[\n\r]/g, ""); // remove newlines
+    //   attrs = attrs.split(/\s*;\s*/); // ["color:#f00", "border: 1px solid red"]
+    //   attrs = attrs.map((propValue) => {
+    //     // "color:#f00"
+    //     return propValue.split(/\s*:\s*/).map((part) => {
+    //       return `"${part}"`;
+    //     }).join(": "); // "\"color\": \"#f00\""
+    //   });
+    //   attrs = attrs.join(", ");
+    //   virtual += `, {style: {${attrs}}}`;
+    // }
+
+    // if (el.attrs.points) {
+    //   debugger;
+    // }
 
     const children = (el.children.length !== 0) ?
       new TemplateBuilder(el.children).complete() :

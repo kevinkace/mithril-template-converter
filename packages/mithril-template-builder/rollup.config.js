@@ -11,6 +11,7 @@ export default {
     commonJs()
   ],
   watch : {
-    include : "./src"
+    include : "./src/index.js",
+    clearScreen : false
   }
 };
