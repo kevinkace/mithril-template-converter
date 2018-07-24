@@ -10,7 +10,7 @@
     "url": "https://github.com/ArthurClemens/mithril-template-converter.git"
   },
   "scripts": {
-    "rollup": "npx rollup ./index.js -o ./dst/templateBuilder.js -f cjs",
+    "rollup": "npx rollup ./index.js -o ./dst/templateBuilder.js -f iife -n templateBuilder",
     "build": "npm run rollup",
     "test": "http-server test",
     "ct": "node test/customTest.js"
