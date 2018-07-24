@@ -1,2 +1,2 @@
-import { templateBuilder } from "./src";
+import { templateBuilder } from "./src/index.js";
 export default templateBuilder;
