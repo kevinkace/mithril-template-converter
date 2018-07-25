@@ -1,7 +1,7 @@
 {
   "name": "mithril-template-builder",
   "description": "Builder for Mithril HTML to JavaScript converter",
-  "main": "./index.js",
+  "main": "index.js",
   "version": "1.0.0",
   "license": "MIT",
   "repository": {
