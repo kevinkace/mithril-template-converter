@@ -1,7 +1,7 @@
 {
   "name": "mithril-template-converter",
   "description": "Mithril HTML to JavaScript converter webpage",
-  "main": "./packages/mithril-template-builder/dist/mithril-template-builder.js",
+  "main": "./packages/mithril-template-builder/index.js",
   "version": "1.0.0",
   "license": "MIT",
   "repository": {
