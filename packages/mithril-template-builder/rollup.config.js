@@ -3,9 +3,9 @@ import commonJs from "rollup-plugin-commonjs";
 export default {
   input  : "./index.js",
   output : {
-    file   : "./dst/templateBuilder.js",
+    file   : "./dist/mithril-template-builder.js",
     format : "cjs",
-    name   : "templateBuilder"
+    name   : "mithrilTemplateBuilder"
   },
   plugins : [
     commonJs()
