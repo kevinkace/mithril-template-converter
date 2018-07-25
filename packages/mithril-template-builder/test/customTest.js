@@ -1,5 +1,5 @@
 const templateBuilder = require("../dst/templateBuilder");
 
-const source = `<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 118"><title>health</title><polygon points="420.01 51.54 92.89 51.54 61.65 20.3 420.01 20.3 420.01 51.54"/><polygon style="stroke: red;" points="420.01 75.43 115.86 75.43 98.41 57.98 420.01 57.98 420.01 75.43"/><circle cx="38.33" cy="38.33" r="23.33"/><circle cx="77.55" cy="79.67" r="23.33"/></svg>`;
+const source = `<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 237 59"><title>health</title><polygon points="233 25 50.44 25 33 5 233 5 233 25"/><polygon points="233 40.5 62.77 40.5 53 29.5 233 29.5 233 40.5"/><circle cx="19" cy="19" r="15"/><circle cx="40" cy="43" r="13"/></svg>`;
 
 console.log(templateBuilder({ source }));

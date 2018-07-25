@@ -92,28 +92,30 @@ TemplateBuilder.prototype = {
 
   addVirtualAttrs: function(el) {
     let virtual = el.tag || "div";
-
-    // if (el.attrs.class) {
-    //   let attrs = el.attrs.class.replace(/\s+/g, ".");
-    //   virtual += `.${attrs}`;
-    //   el.attrs.class = undefined;
-    // }
+    let cleanAttrs = {};
+    let selectorAttrsRegex = /\-/;
 
     each(Object.keys(el.attrs).sort(), function(attrName) {
-      let attrs = el.attrs[attrName];
+      let attr = el.attrs[attrName];
 
-      if (!attrs) return;
+      if (!attr) return;
 
-      switch(attrs) {
+      if (selectorAttrsRegex.test(attrName)) {
+        virtual += `[${attrName}=${attr}]`;
+
+        return;
+      }
+
+      switch(attrName) {
       case "class":
-        attrs = attrs.replace(/\s+/g, ".");
-        virtual += `.${attrs}`;
-        el.attrs[attrName] = undefined;
+        attr = attr.replace(/\s+/g, ".");
+
+        cleanAttrs.class = attr;
 
         break;
 
       case "style":
-        attrs = attrs
+        attr = attr
           .replace(/(^.*);\s*$/, "$1") // trim trailing semi-colon
           .replace(/[\n\r]/g, "") // remove newlines
           .split(/\s*;\s*/) // ["color:#f00", "border: 1px solid red"]
@@ -125,7 +127,7 @@ TemplateBuilder.prototype = {
           })
           .join(", ");
 
-        virtual += `, {style: {${attrs}}}`;
+        cleanAttrs.style = JSON.parse(`{${attr}}`);
 
         break;
 
@@ -133,48 +135,26 @@ TemplateBuilder.prototype = {
       case "cx":
       case "cy":
       case "r":
-        console.log("things");
+        cleanAttrs[attrName] = isNaN(attr) ? attr : parseFloat(attr, 10);
 
         break;
 
       default:
-        attrs = attrs
+        attr = attr
           .replace(/[\n\r\t]/g, " ")
-          .replace(/\s+/g, " ") // clean up redundant spaces we just created
+          .replace(/\s+/g, " ")  // clean up redundant spaces we just created
           .replace(/'/g, "\\'"); // escape quotes
 
-        virtual += `[${attrName}='${attrs}']`;
+        cleanAttrs[attrName] = attr;
 
         break;
       }
-      // if (allowedAttrs.indexOf(attrName) >= 0) return;
-
-      // attrs = attrs.replace(/[\n\r\t]/g, " ");
-      // attrs = attrs.replace(/\s+/g, " "); // clean up redundant spaces we just created
-      // attrs = attrs.replace(/'/g, "\\'"); // escape quotes
-      // virtual += `[${attrName}='${attrs}']`;
     });
 
     if (virtual === "") virtual = "div";
     virtual = `"${virtual}"`; // add quotes
 
-    // if (el.attrs.style) {
-    //   let attrs = el.attrs.style.replace(/(^.*);\s*$/, "$1"); // trim trailing semi-colon
-    //   attrs = attrs.replace(/[\n\r]/g, ""); // remove newlines
-    //   attrs = attrs.split(/\s*;\s*/); // ["color:#f00", "border: 1px solid red"]
-    //   attrs = attrs.map((propValue) => {
-    //     // "color:#f00"
-    //     return propValue.split(/\s*:\s*/).map((part) => {
-    //       return `"${part}"`;
-    //     }).join(": "); // "\"color\": \"#f00\""
-    //   });
-    //   attrs = attrs.join(", ");
-    //   virtual += `, {style: {${attrs}}}`;
-    // }
-
-    // if (el.attrs.points) {
-    //   debugger;
-    // }
+    virtual += `, ${JSON.stringify(cleanAttrs).replace(/"([^(")"]+)":/g,"$1:")}`;
 
     const children = (el.children.length !== 0) ?
       new TemplateBuilder(el.children).complete() :
