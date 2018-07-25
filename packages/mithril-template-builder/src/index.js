@@ -1,16 +1,14 @@
-import jsdom from "jsdom";
-import DOMParser from "xmldom";
+const DOMParser = require("xmldom");
+const jsdGlobal = require("jsdom-global");
 
-const { JSDOM } = jsdom;
-const { document } = (new JSDOM()).window;
+jsdGlobal();
 
 const ENTITY_REGEX = /(&#?\w+;)/;
 
 const svgCaseSensitiveTagNames = ["altGlyph", "altGlyphDef", "altGlyphItem", "animateColor", "animateMotion", "animateTransform", "clipPath", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "foreignObject", "glyphRef", "linearGradient", "radialGradient", "textPath"];
 
-const allowedAttrs = [ "style", "points" ];
-
 const svgCaseSensitiveTagNamesMap = {};
+
 svgCaseSensitiveTagNames.forEach((term) => {
   svgCaseSensitiveTagNamesMap[term.toLowerCase()] = term;
 });
@@ -261,7 +259,7 @@ opts: {
   indent: either "2", "4" or "tab"
 }
 */
-export const templateBuilder = opts => {
+const templateBuilder = opts => {
   const source = createVirtual(createFragment(opts.source));
   const parsed = new TemplateBuilder(source).complete();
   const indentLevel = parsed.length > 1 ?
@@ -276,3 +274,5 @@ export const templateBuilder = opts => {
     formatted.join("").trim();
   return wrapped;
 };
+
+module.exports = templateBuilder;
